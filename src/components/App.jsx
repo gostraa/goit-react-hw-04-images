@@ -4,10 +4,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchImages } from '../../src/fetch.js';
-import styles from '../../src/styles.module.css';
-import Loader from './Loader/Loader';
 import { Button } from './Button/Button';
 import { Modal } from './Modal/Modal';
+import styles from '../../src/styles.module.css';
+import Loader from './Loader/Loader';
 
 export class App extends Component {
   state = {
