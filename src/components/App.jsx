@@ -71,6 +71,7 @@ export class App extends Component {
   };
 
   getLargeImg = url => {
+    console.log(123);
     this.toggleModal();
     this.setState({ modalImg: url });
   };
