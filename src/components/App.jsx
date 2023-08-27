@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,32 +9,26 @@ import { Modal } from './Modal/Modal';
 import styles from '../../src/styles.module.css';
 import Loader from './Loader/Loader';
 
-export class App extends Component {
-  state = {
-    inputValue: '',
-    page: 1,
-    images: [],
-    modalImg: '',
-    status: 'idle',
-    showBtn: false,
-    showModal: false,
+export const App = () => {
+  const [inputValue, setInputValue] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [modalImg, setModalImg] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [showBtn, setShowBtn] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const getInputValue = value => {
+    setInputValue(value);
+    setPage(1);
+    setImages([]);
+    setModalImg('');
+    setStatus('idle');
+    setShowBtn(false);
+    setShowModal(false);
   };
 
-  getInputValue = value => {
-    this.setState({
-      inputValue: value,
-      page: 1,
-      images: [],
-      modalImg: '',
-      status: 'idle',
-      showBtn: false,
-      showModal: false,
-    });
-  };
-
-  renderImages = () => {
-    const { inputValue, page } = this.state;
-
+  const renderImages = () => {
     fetchImages(inputValue, page)
       .then(response => {
         if (response.hits.length === 0) {
@@ -42,51 +36,41 @@ export class App extends Component {
           return;
         }
 
-        this.setState(prevState => ({
-          images: [...prevState.images, ...response.hits],
-          status: 'resolved',
-          showBtn: page < Math.ceil(response.totalHits / 12),
-        }));
+        setImages(prevImages => [...prevImages, ...response.hits]);
+        setStatus('resolved');
+        setShowBtn(page < Math.ceil(response.totalHits / 12));
       })
-      .catch(error => this.setState({ status: 'rejected' }));
+      .catch(error => setStatus('rejected'));
   };
 
-  onClickLoadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
-    }));
+  const onClickLoadMore = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.inputValue !== this.state.inputValue ||
-      (prevState.page !== this.state.page && this.state.page > 1)
-    ) {
-      this.renderImages();
+  useEffect(() => {
+    if (inputValue || page > 1) {
+      renderImages();
     }
-  }
+  }, [inputValue, page]);
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({ showModal: !showModal }));
+  const toggleModal = () => {
+    setShowModal(prevShowModal => !prevShowModal);
   };
 
-  getLargeImg = url => {
+  const getLargeImg = url => {
     console.log(123);
-    this.toggleModal();
-    this.setState({ modalImg: url });
+    toggleModal();
+    setModalImg(url);
   };
 
-  render() {
-    const { status, showBtn, showModal, modalImg, images } = this.state;
-    return (
-      <section className={styles['App']}>
-        <Searchbar onSubmit={this.getInputValue} />
-        {status === 'pending' ? <Loader /> : null}
-        <ImageGallery onClick={this.getLargeImg} images={images} />
-        {showBtn && <Button onClick={this.onClickLoadMore} />}
-        {showModal && <Modal url={modalImg} onClose={this.toggleModal} />}
-        <ToastContainer autoClose={3000} />
-      </section>
-    );
-  }
-}
+  return (
+    <section className={styles['App']}>
+      <Searchbar onSubmit={getInputValue} />
+      {status === 'pending' ? <Loader /> : null}
+      <ImageGallery onClick={getLargeImg} images={images} />
+      {showBtn && <Button onClick={onClickLoadMore} />}
+      {showModal && <Modal url={modalImg} onClose={toggleModal} />}
+      <ToastContainer autoClose={3000} />
+    </section>
+  );
+};
