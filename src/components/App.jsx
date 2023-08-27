@@ -17,6 +17,7 @@ export const App = () => {
   const [status, setStatus] = useState('idle');
   const [showBtn, setShowBtn] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [searchKey, setSearchKey] = useState('');
 
   const getInputValue = value => {
     setInputValue(value);
@@ -26,13 +27,16 @@ export const App = () => {
     setStatus('idle');
     setShowBtn(false);
     setShowModal(false);
+    setSearchKey(Date.now());
   };
 
   const renderImages = () => {
+    setStatus('pending');
     fetchImages(inputValue, page)
       .then(response => {
         if (response.hits.length === 0) {
           toast.error('нажаль, нічого не знайдено 🥺');
+          setStatus('resolved');
           return;
         }
 
@@ -48,10 +52,10 @@ export const App = () => {
   };
 
   useEffect(() => {
-    if (inputValue || page > 1) {
+    if (searchKey || page > 1) {
       renderImages();
     }
-  }, [inputValue, page]);
+  }, [searchKey, page]);
 
   const toggleModal = () => {
     setShowModal(prevShowModal => !prevShowModal);
