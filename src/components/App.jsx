@@ -20,7 +20,7 @@ export const App = () => {
 
   const getInputValue = value => {
     if (value === inputValue) {
-      alert('Already show this photos');
+      toast.error('Вибраний текст уже використовувався вами раніше.');
       return;
     }
     setInputValue(value);
