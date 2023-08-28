@@ -17,9 +17,12 @@ export const App = () => {
   const [status, setStatus] = useState('idle');
   const [showBtn, setShowBtn] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [searchKey, setSearchKey] = useState('');
 
   const getInputValue = value => {
+    if (value === inputValue) {
+      alert('Already show this photos');
+      return;
+    }
     setInputValue(value);
     setPage(1);
     setImages([]);
@@ -27,24 +30,6 @@ export const App = () => {
     setStatus('idle');
     setShowBtn(false);
     setShowModal(false);
-    setSearchKey(Date.now());
-  };
-
-  const renderImages = () => {
-    setStatus('pending');
-    fetchImages(inputValue, page)
-      .then(response => {
-        if (response.hits.length === 0) {
-          toast.error('нажаль, нічого не знайдено 🥺');
-          setStatus('resolved');
-          return;
-        }
-
-        setImages(prevImages => [...prevImages, ...response.hits]);
-        setStatus('resolved');
-        setShowBtn(page < Math.ceil(response.totalHits / 12));
-      })
-      .catch(error => setStatus('rejected'));
   };
 
   const onClickLoadMore = () => {
@@ -52,17 +37,33 @@ export const App = () => {
   };
 
   useEffect(() => {
-    if (searchKey || page > 1) {
-      renderImages();
+    if (!inputValue) {
+      return;
     }
-  }, [searchKey, page]);
+    const renderImages = () => {
+      setStatus('pending');
+      fetchImages(inputValue, page)
+        .then(response => {
+          if (response.hits.length === 0) {
+            toast.error('нажаль, нічого не знайдено 🥺');
+            setStatus('resolved');
+            return;
+          }
+
+          setImages(prevImages => [...prevImages, ...response.hits]);
+          setStatus('resolved');
+          setShowBtn(page < Math.ceil(response.totalHits / 12));
+        })
+        .catch(error => setStatus('rejected'));
+    };
+    renderImages();
+  }, [inputValue, page]);
 
   const toggleModal = () => {
     setShowModal(prevShowModal => !prevShowModal);
   };
 
   const getLargeImg = url => {
-    console.log(123);
     toggleModal();
     setModalImg(url);
   };

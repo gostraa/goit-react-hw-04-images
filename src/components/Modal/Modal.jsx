@@ -1,4 +1,4 @@
-import { Component, useEffect } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Modal.module.css';
 
@@ -15,7 +15,7 @@ export const Modal = ({ url, onClose }) => {
     return () => {
       window.removeEventListener('keydown', clickEsc);
     };
-  }, []);
+  }, [onClose]);
 
   const clickBackdrop = event => {
     if (event.target === event.currentTarget) {
